@@ -25,7 +25,8 @@ Windows Builds:
 * `windows-11dev`: Windows 11 26220 (aka 25H2 BETA)
 * `windows-1126h1`: Windows 11 28000 (aka 26H1) <details><summary>Details</summary>for new 2026 devices with select new silicon (e.g., Snapdragon X2) to enable new hardware innovations - not for existing PCs or general enterprise deployments.</details>
 
-* `windows-1126h2`: Windows 11 26300 (aka 26H2 BETA)
+* `windows-1126h2`: Windows 11 26300 (aka 26H2)
+* `windows-1126h2beta`: Windows 11 26340 (aka 26H2 Experimental)
 * `windows-dev`: Windows 11 26300 (aka DEV)
 * `windows-canary`: Windows 11 Insider Preview (aka CANARY)
 
