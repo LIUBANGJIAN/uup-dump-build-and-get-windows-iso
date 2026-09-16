@@ -1,0 +1,71 @@
+name: Build Windows ISO
+
+on:
+  workflow_dispatch: # 支持手动触发
+  # schedule:
+  #   - cron: '0 0 1 * *' # 可选：每月定时自动构建
+
+jobs:
+  build:
+    runs-on: windows-2025 # 使用最新的 Windows Server 2025 运行器
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # --- Windows 10 系列 ---
+          - name: "Windows 10 22H2"
+            target: "windows-10"
+            edition: "pro"
+          - name: "Windows 10 21H2 (LTSC)"
+            target: "windows-10-ltsc-21h2"
+            edition: "pro"
+          - name: "Windows 10 1809 (LTSC)"
+            target: "windows-10-ltsc-1809"
+            edition: "pro"
+          - name: "Windows 10 1607 (LTSB)"
+            target: "windows-10-ltsb-1607"
+            edition: "pro"
+
+          # --- Windows 11 系列 ---
+          - name: "Windows 11 LTSC 2024"
+            target: "windows-11-ltsc-2024"
+            edition: "pro"
+          - name: "Windows 11 25H2"
+            target: "windows-11new"
+            edition: "pro"
+
+          # --- Windows Server 系列 ---
+          - name: "Windows Server 2025"
+            target: "windows-server-2025"
+            edition: "server"
+          - name: "Windows Server 2022"
+            target: "windows-server-2022"
+            edition: "server"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build and Get Windows ISO
+        shell: pwsh
+        run: |
+          $opts = "-esd -netfx3 -drivers"
+          Write-Host "Building: ${{ matrix.name }} | x64 | zh-cn"
+          
+          # 注意：这里将 -edition 改为了矩阵中定义的单版本（pro 或 server）
+          pwsh ./uup-dump-get-windows-iso.ps1 `
+            "${{ matrix.target }}" `
+            "d:/output" `
+            -architecture x64 `
+            -edition "${{ matrix.edition }}" `
+            -lang zh-cn `
+            $opts
+
+      - name: Upload ISO to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          files: d:/output/*.iso
+          tag_name: automated-build-${{ github.run_id }}
+          name: "Windows ISO Build - ${{ matrix.name }}"
+          body: "Automated build for ${{ matrix.name }} (zh-cn, x64)."
